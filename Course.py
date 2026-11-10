@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from pythonProject.Test import Test
+from Test import Test
 
 
 @dataclass
