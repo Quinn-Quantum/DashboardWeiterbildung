@@ -16,7 +16,7 @@ class Dashboard:
     def initialisiere_period_datei(self):
         if not os.path.exists(self.period_datei):
             with open(self.period_datei, "w", encoding="utf-8") as f:
-                f.write("Gesamtzeitraum: 6 Monate (Start: 19.10.)")
+                f.write("Total period: 6 months (Start: 19.10.)")
 
     def lade_time(self) -> str:
         if os.path.exists(self.period_datei):
@@ -28,8 +28,12 @@ class Dashboard:
         self.db.store_in_db(name_course, test_name, is_mandatory)
 
     def set_aktive_course(self, course_id, start_date_str ):
-        """Speichert den aktiven Kurs in der Datenbank"""
+        """Stores the active course in the db"""
         self.db.set_active_course_in_db(course_id, start_date_str)
 
     def load_courses_from_db(self):
         return self.db.get_all_courses()
+
+    def delete_course(self, course_id):
+        """Forwards the delete command to the database."""
+        self.db.delete_course_from_db(course_id)

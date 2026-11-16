@@ -1,12 +1,9 @@
-from PyQt6 import QtCore, QtGui, QtWidgets
-import PoPUpAddCourse
-from Dashboard import Dashboard
-
+from PyQt6 import QtCore, QtWidgets
 
 class UiDialog(object):
 
     def setup_ui(self, Dialog):
-        Dialog.setObjectName("Dialog")
+        Dialog.setObjectName("Plan")
         Dialog.resize(1062, 720)
 
         # 1. Create a central widget for the QMainWindow
@@ -86,7 +83,7 @@ class UiDialog(object):
         self.kurs_listWidget.setStyleSheet("QListWidget { background: transparent; border: none; }")
         self.main_layout.addWidget(self.kurs_listWidget)
 
-        # 3. Pass the central widget to the QMainWindow
+        # Pass the central widget to the QMainWindow
         Dialog.setCentralWidget(self.central_widget)
 
         self.retranslate_ui(Dialog)

@@ -25,5 +25,5 @@ class PoPUpSelectDate(QDialog):
         self.setLayout(layout)
 
     def get_selected_date(self) -> QDate:
-        """Gibt das direkt im Kalender ausgewählte Datum zurück."""
+        """Returns the date selected directly in the calendar."""
         return self.calendar.selectedDate()

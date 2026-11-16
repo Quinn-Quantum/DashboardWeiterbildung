@@ -46,9 +46,8 @@ class MainWindow(QMainWindow):
         event.accept()
 
     def refresh_course_tiles(self):
-        print("refresh course tiles")
+        """Loads courses and restores the saved active course at startup."""
         self.ui.kurs_listWidget.clear()
-        """Lädt Kurse und stellt den gespeicherten aktiven Kurs beim Start wieder her."""
         self.ui.kurs_listWidget.clear()
         courses = self.dashboard.load_courses_from_db()
 
@@ -58,6 +57,8 @@ class MainWindow(QMainWindow):
         for course_data in courses:
             c_id, name, time, test_name, is_mandatory, is_active, start_date = course_data
             tile = CourseTile(c_id, name, test_name, is_mandatory)
+
+            tile.delete_requested.connect(self.delete_course_action)
 
             item = QListWidgetItem(self.ui.kurs_listWidget)
             item.setSizeHint(tile.sizeHint())
@@ -76,11 +77,9 @@ class MainWindow(QMainWindow):
             self.activate_course(active_tile_to_restore, active_start_date)
 
     def select_active_course(self, item):
-        print("Schritt selecct activ cours")
         """Called when the user manually clicks on a tile."""
         clicked_tile = self.ui.kurs_listWidget.itemWidget(item)
         if clicked_tile:
-            print("1 if")
             self.is_dialog_open = True
             try:
                 date_dialog = PoPUpSelectDate(None)
@@ -93,28 +92,26 @@ class MainWindow(QMainWindow):
                     # Update UI & Calendar
                     self.activate_course(clicked_tile, selected_date)
             except Exception as e:
-                print("PopUp zum Start Datum: ", e)
+                print("PopUp for the start date: ", e)
             finally:
                 self.is_dialog_open = False
 
     def activate_course(self, active_tile, start_date: QDate):
-        print("activ cours")
         """Central way to make a tile active and update the calendar."""
         for i in range(self.ui.kurs_listWidget.count()):
             it = self.ui.kurs_listWidget.item(i)
             tile = self.ui.kurs_listWidget.itemWidget(it)
 
-            # HIER KORRIGIERT: Vergleich über die eindeutige course_id statt des gesamten Objekts!
             if tile.course_id == active_tile.course_id:
                 tile.set_active_style(True)
 
-                # Alten aktiven Eintrag im oberen Bereich entfernen
+                # Remove old active entry at the top
                 while self.ui.active_course_layout.count():
                     child = self.ui.active_course_layout.takeAt(0)
                     if child.widget():
                         child.widget().deleteLater()
 
-                # Neue aktive Kachel in Lila/Weiß erstellen
+                # New Active Tile
                 active_display_tile = CourseTile(tile.course_id, tile.name, tile.test_name, tile.is_mandatory)
                 active_display_tile.setStyleSheet("""
                     CourseTile {
@@ -130,8 +127,8 @@ class MainWindow(QMainWindow):
                 self.ui.active_course_layout.addWidget(active_display_tile)
                 active_display_tile.show()
 
-                self.ui.aktiv_label.setText(f"Aktueller Kurs: {tile.name} (Start: {start_date.toString('dd.MM.yyyy')})")
-                print(f"Aktiver Kurs geladen/aktiviert: ID {tile.course_id} ({tile.name}) ab {start_date.toString('yyyy-MM-dd')}")
+                self.ui.aktiv_label.setText(f"Current Course: {tile.name} (Start: {start_date.toString('dd.MM.yyyy')})")
+                print(f"Current Course loaded/activated: ID {tile.course_id} ({tile.name}) ab {start_date.toString('yyyy-MM-dd')}")
 
                 self.highlight_course_duration(start_date)
             else:
@@ -162,6 +159,23 @@ class MainWindow(QMainWindow):
         while d <= end_date:
             self.ui.calendarWidget.setDateTextFormat(d, fmt)
             d = d.addDays(1)
+
+    def delete_course_action(self, course_id):
+        """Called when the X in a tile is clicked."""
+        # Delete from DB
+        self.dashboard.delete_course(course_id)
+
+        # Clear active area (if the deleted course was active)
+        while self.ui.active_course_layout.count():
+            child = self.ui.active_course_layout.takeAt(0)
+            if child.widget():
+                child.widget().deleteLater()
+        self.ui.aktiv_label.setText("Current course")
+        self.setup_calendar_periods()
+
+        # Reload course list
+        self.refresh_course_tiles()
+        print(f"Course ID {course_id} was deleted immediately.")
 
 
 if __name__ == "__main__":
