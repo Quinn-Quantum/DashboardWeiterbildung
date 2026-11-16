@@ -6,7 +6,7 @@ from PyQt6.QtGui import QTextCharFormat, QColor
 from CourseTile import CourseTile
 from Dashboard import Dashboard
 from DatabaseConnection import DatabaseConnection
-from gui_main_window import UiDialog
+from GuiMainWindow import UiDialog
 import PoPUpAddCourse
 
 
