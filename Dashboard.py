@@ -27,9 +27,9 @@ class Dashboard:
     def store_in_db(self, name_course, test_name, is_mandatory):
         self.db.store_in_db(name_course, test_name, is_mandatory)
 
-    def set_aktive_course(self, course_id):
+    def set_aktive_course(self, course_id, start_date_str ):
         """Speichert den aktiven Kurs in der Datenbank"""
-        self.db.set_active_course_in_db(course_id)
+        self.db.set_active_course_in_db(course_id, start_date_str)
 
     def load_courses_from_db(self):
         return self.db.get_all_courses()

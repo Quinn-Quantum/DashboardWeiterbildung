@@ -8,7 +8,7 @@ from Dashboard import Dashboard
 from DatabaseConnection import DatabaseConnection
 from GuiMainWindow import UiDialog
 import PoPUpAddCourse
-
+from PoPUpSelectDate import PoPUpSelectDate
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -32,7 +32,7 @@ class MainWindow(QMainWindow):
         self.refresh_course_tiles()
 
     def open_popup(self):
-        dialog = PoPUpAddCourse.PoPUpAddCourse(self)
+        dialog =PoPUpAddCourse.PoPUpAddCourse(self)
         if dialog.exec() == QDialog.DialogCode.Accepted:
             name_course = dialog.course_name.text()
             test_name = dialog.test_name.text()
@@ -46,44 +46,66 @@ class MainWindow(QMainWindow):
         event.accept()
 
     def refresh_course_tiles(self):
+        print("refresh course tiles")
+        self.ui.kurs_listWidget.clear()
         """Lädt Kurse und stellt den gespeicherten aktiven Kurs beim Start wieder her."""
         self.ui.kurs_listWidget.clear()
         courses = self.dashboard.load_courses_from_db()
 
         active_tile_to_restore = None
+        active_start_date = None
 
         for course_data in courses:
-            c_id, name, time, test_name, is_mandatory, is_active = course_data
+            c_id, name, time, test_name, is_mandatory, is_active, start_date = course_data
             tile = CourseTile(c_id, name, test_name, is_mandatory)
 
             item = QListWidgetItem(self.ui.kurs_listWidget)
             item.setSizeHint(tile.sizeHint())
             self.ui.kurs_listWidget.setItemWidget(item, tile)
 
-            # Wenn dieser Kurs in der DB als aktiv markiert ist, merken wir ihn uns
+            # If this course is marked as active in the DB, we will remember it
             if is_active == 1:
                 active_tile_to_restore = tile
+                if start_date:
+                    active_start_date = QDate.fromString(start_date, "yyyy-MM-dd")
+                else:
+                    active_start_date = QDate.currentDate()
 
-        # Falls ein aktiver Kurs gefunden wurde, UI direkt darauf einstellen
+        # If an active course is found, set the UI directly to it
         if active_tile_to_restore:
-            self.activate_course(active_tile_to_restore)
+            self.activate_course(active_tile_to_restore, active_start_date)
 
     def select_active_course(self, item):
-        """Wird aufgerufen, wenn der Benutzer manuell auf eine Kachel klickt."""
+        print("Schritt selecct activ cours")
+        """Called when the user manually clicks on a tile."""
         clicked_tile = self.ui.kurs_listWidget.itemWidget(item)
         if clicked_tile:
-            # In Datenbank speichern
-            self.dashboard.set_aktive_course(clicked_tile.course_id)
-            # UI aktualisieren
-            self.activate_course(clicked_tile)
+            print("1 if")
+            self.is_dialog_open = True
+            try:
+                date_dialog = PoPUpSelectDate(None)
+                if date_dialog.exec() == QDialog.DialogCode.Accepted:
+                    selected_date = date_dialog.get_selected_date()
+                    date_str = selected_date.toString("yyyy-MM-dd")
 
-    def activate_course(self, active_tile):
-        """Zentrale Methode, um eine Kachel als aktiv darzustellen und den Kalender zu aktualisieren."""
+                    # Save to database
+                    self.dashboard.set_aktive_course(clicked_tile.course_id, date_str)
+                    # Update UI & Calendar
+                    self.activate_course(clicked_tile, selected_date)
+            except Exception as e:
+                print("PopUp zum Start Datum: ", e)
+            finally:
+                self.is_dialog_open = False
+
+    def activate_course(self, active_tile, start_date: QDate):
+        print("activ cours")
+        """Central way to make a tile active and update the calendar."""
         for i in range(self.ui.kurs_listWidget.count()):
             it = self.ui.kurs_listWidget.item(i)
             tile = self.ui.kurs_listWidget.itemWidget(it)
 
-            if tile == active_tile:
+            # HIER KORRIGIERT: Vergleich über die eindeutige course_id statt des gesamten Objekts!
+            if tile.course_id == active_tile.course_id:
                 tile.set_active_style(True)
 
                 # Alten aktiven Eintrag im oberen Bereich entfernen
@@ -108,10 +130,10 @@ class MainWindow(QMainWindow):
                 self.ui.active_course_layout.addWidget(active_display_tile)
                 active_display_tile.show()
 
-                self.ui.aktiv_label.setText(f"Aktueller Kurs: {tile.name}")
-                print(f"Aktiver Kurs geladen/aktiviert: ID {tile.course_id} ({tile.name})")
+                self.ui.aktiv_label.setText(f"Aktueller Kurs: {tile.name} (Start: {start_date.toString('dd.MM.yyyy')})")
+                print(f"Aktiver Kurs geladen/aktiviert: ID {tile.course_id} ({tile.name}) ab {start_date.toString('yyyy-MM-dd')}")
 
-                self.highlight_course_duration(QDate.currentDate())
+                self.highlight_course_duration(start_date)
             else:
                 tile.set_active_style(False)
 
