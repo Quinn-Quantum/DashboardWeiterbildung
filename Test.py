@@ -1,4 +1,5 @@
 from dataclasses import dataclass
+
 @dataclass
 class Test:
     type_of_examination: str

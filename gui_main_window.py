@@ -1,22 +1,24 @@
 from PyQt6 import QtCore, QtGui, QtWidgets
+import PoPUpAddCourse
+from Dashboard import Dashboard
 
 
-class Ui_Dialog(object):
+class UiDialog(object):
 
-    def setupUi(self, Dialog):
+    def setup_ui(self, Dialog):
         Dialog.setObjectName("Dialog")
         Dialog.resize(1062, 720)
 
-        # 1. Zentrales Widget für das QMainWindow erstellen
+        # 1. Create a central widget for the QMainWindow
         self.central_widget = QtWidgets.QWidget(parent=Dialog)
         self.central_widget.setObjectName("central_widget")
 
-        # 2. Das Hauptlayout auf das zentrale Widget setzen
+        # 2. Set the main layout to the central widget
         self.main_layout = QtWidgets.QVBoxLayout(self.central_widget)
         self.main_layout.setContentsMargins(15, 15, 15, 15)
         self.main_layout.setSpacing(10)
 
-        # --- Erste Zeile: Labels oben ---
+        # --- First line: Labels at the top ---
         self.horizontalLayout = QtWidgets.QHBoxLayout()
 
         self.aktiv_label = QtWidgets.QLabel(parent=self.central_widget)
@@ -29,12 +31,31 @@ class Ui_Dialog(object):
 
         self.main_layout.addLayout(self.horizontalLayout)
 
-        # --- Zweite Zeile: ColumnView und Kalender ---
+        # --- Second line: aktiv course and calendar ---
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
 
-        self.columnView = QtWidgets.QColumnView(parent=self.central_widget)
-        self.columnView.setObjectName("columnView")
-        self.horizontalLayout_2.addWidget(self.columnView)
+        # HIER GEÄNDERT: QWidget statt QColumnView als Container verwenden!
+        self.active_course_container = QtWidgets.QWidget(parent=self.central_widget)
+        self.active_course_container.setObjectName("active_course_container")
+
+        self.active_course_layout = QtWidgets.QVBoxLayout(self.active_course_container)
+        self.active_course_layout.setContentsMargins(0, 0, 0, 0)
+
+        self.active_course_placeholder = QtWidgets.QLabel("Kein Kurs ausgewählt", parent=self.active_course_container)
+        self.active_course_placeholder.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
+        self.active_course_placeholder.setMinimumHeight(120)
+        self.active_course_placeholder.setStyleSheet("""
+                    QLabel {
+                        color: #888;
+                        font-style: italic;
+                        background-color: #f8f9fa;
+                        border: 2px dashed #dee2e6;
+                        border-radius: 10px;
+                    }
+                """)
+        self.active_course_layout.addWidget(self.active_course_placeholder)
+
+        self.horizontalLayout_2.addWidget(self.active_course_container)
 
         self.calendarWidget = QtWidgets.QCalendarWidget(parent=self.central_widget)
         self.calendarWidget.setObjectName("calendarWidget")
@@ -43,7 +64,7 @@ class Ui_Dialog(object):
 
         self.main_layout.addLayout(self.horizontalLayout_2)
 
-        # --- Dritte Zeile: Kurs-Label und Add-Button ---
+        # --- Third line: Course label and add button ---
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
 
         self.kurs_label = QtWidgets.QLabel(parent=self.central_widget)
@@ -52,19 +73,20 @@ class Ui_Dialog(object):
 
         self.horizontalLayout_3.addStretch()
 
-        self.add_button = QtWidgets.QPushButton(parent=self.central_widget)
+        self.add_button = QtWidgets.QPushButton("Öffne Eintragung", parent=self.central_widget)
         self.add_button.setStyleSheet("background-color: rgb(110, 53, 201); color: white;")
         self.add_button.setObjectName("add_button")
         self.horizontalLayout_3.addWidget(self.add_button)
 
         self.main_layout.addLayout(self.horizontalLayout_3)
 
-        # --- Vierte Zeile: Tabelle ---
-        self.kurs_tableView = QtWidgets.QTableView(parent=self.central_widget)
-        self.kurs_tableView.setObjectName("kurs_tableView")
-        self.main_layout.addWidget(self.kurs_tableView)
+        # --- Fourth row: Table ---
+        self.kurs_listWidget = QtWidgets.QListWidget(parent=self.central_widget)
+        self.kurs_listWidget.setObjectName("kurs_listWidget")
+        self.kurs_listWidget.setStyleSheet("QListWidget { background: transparent; border: none; }")
+        self.main_layout.addWidget(self.kurs_listWidget)
 
-        # 3. Dem QMainWindow das zentrale Widget übergeben
+        # 3. Pass the central widget to the QMainWindow
         Dialog.setCentralWidget(self.central_widget)
 
         self.retranslate_ui(Dialog)

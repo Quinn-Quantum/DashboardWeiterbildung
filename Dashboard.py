@@ -1,63 +1,35 @@
-from dataclasses import dataclass
+from typing import List, Optional
 from Course import Course
-from Test import Test
-import os
 from DatabaseConnection import DatabaseConnection
+import os
 
 
-
-@dataclass
 class Dashboard:
-    aktive_course: Course
-    time: int
-    cours_list: list[Course]
+    def __init__(self, db: DatabaseConnection):
+        self.db = db
+        self.course_list: List[Course] = []
+        self.aktive_course: Optional[Course] = None
+        self.period_datei = "time.txt"
 
-    def __init__(self,):
-        self.cours_list = []
-        self.db = DatabaseConnection()
-        self.time_datei = "time.txt"
+        self.initialisiere_period_datei()
 
-        # chaks the txt data
-        self.initialisiere_time_datei()
+    def initialisiere_period_datei(self):
+        if not os.path.exists(self.period_datei):
+            with open(self.period_datei, "w", encoding="utf-8") as f:
+                f.write("Gesamtzeitraum: 6 Monate (Start: 19.10.)")
 
-    def initialisiere_time_datei(self):
-        """Create the txt-Datei for the time i have for the study."""
-        if not os.path.exists(self.time_datei):
-            with open(self.time_datei, "w", encoding="utf-8") as f:
-                f.write("0")  # Standardwert z.B. 0 Minuten/Stunden
-            print(f"Textdatei '{self.time_datei}' wurde frisch erstellt.")
+    def lade_time(self) -> str:
+        if os.path.exists(self.period_datei):
+            with open(self.period_datei, "r", encoding="utf-8") as f:
+                return f.read().strip()
+        return "6 Monate"
 
-    def write_time(self, time: int):
-        """write the tim in txt-Datei."""
-        with open(self.time_datei, "w", encoding="utf-8") as f:
-            f.write(str(time))
+    def store_in_db(self, name_course, test_name, is_mandatory):
+        self.db.store_in_db(name_course, test_name, is_mandatory)
 
-    def lade_time(self) -> int:
-        """read the time in txt-Datei aus."""
-        if os.path.exists(self.time_datei):
-            with open(self.time_datei, "r", encoding="utf-8") as f:
-                inhalt = f.read().strip()
-                return int(inhalt) if inhalt.isdigit() else 0
-        return 0
+    def set_aktive_course(self, course_id):
+        """Speichert den aktiven Kurs in der Datenbank"""
+        self.db.set_active_course_in_db(course_id)
 
-    def store_in_db(cours_list):
-        pass
-    def set_aktive_course(self,aktive_course: Course):
-        self.aktive_course = aktive_course
-
-    def new_course(self, name: str, test: Test,  time: int):
-        new_course = Course(name, test, time)
-        self.cours_list.append(new_course)
-        self.store_in_db(self.cours_list)
-        pass
-
-    def load_data_from_db(self):
-        pass
-
-    def start_time(self,start:int):
-        pass
-
-    def end_time(self,end:int):
-        pass
-
-
+    def load_courses_from_db(self):
+        return self.db.get_all_courses()

@@ -7,7 +7,7 @@ class Course:
     name: str
     test: Test
     time: int
-    is_active: bool
+    is_active: bool = False
 
     def __init__(self, name: str, test: Test, time: int, is_active: bool = False) -> None:
         self.name = name
