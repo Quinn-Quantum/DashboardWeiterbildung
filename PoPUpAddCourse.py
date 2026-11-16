@@ -1,6 +1,6 @@
 import sys
 from PyQt6.QtWidgets import (
-    QApplication, QDialog, QLabel, QLineEdit,
+     QDialog, QLineEdit,
     QPushButton, QRadioButton, QVBoxLayout, QWidget
 )
 

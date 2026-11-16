@@ -2,8 +2,6 @@ import sqlite3
 import os
 
 
-
-
 class DatabaseConnection:
     def __init__(self, db_name="coursesData.db"):
         self.db_name = db_name
@@ -28,7 +26,8 @@ class DatabaseConnection:
                 time INTEGER,
                 test_id INTEGER,
                 is_active INTEGER DEFAULT 0,
-                FOREIGN KEY (test_id) REFERENCES courses (id)
+                start_date TEXT,
+                FOREIGN KEY (test_id) REFERENCES tests (id)
             )
         """)
 
@@ -41,7 +40,7 @@ class DatabaseConnection:
             )
         """)
         self.connection.commit()
-        print("Datenbank und Tabellen wurden erfolgreich erstellt!")
+        print("Database and tables have been successfully created!")
 
     def close(self):
         self.connection.close()
@@ -59,23 +58,40 @@ class DatabaseConnection:
                 (name_course, 4, test_id)
             )
             self.connection.commit()
-            print(f"Erfolgreich gespeichert! Kurs: '{name_course}', Test-ID: {test_id}, Dauer: 4 Wochen")
+            print(f"Successfully saved! Course: '{name_course}', Test-ID: {test_id}, Duration: 4 weeks")
         except Exception as e:
-            print(f"Fehler beim Speichern in die Datenbank: {e}")
+            print(f"Failed to save to db: {e}")
 
-    def set_active_course_in_db(self, course_id):
+    def set_active_course_in_db(self, course_id, start_date_str):
         """Set all courses to inactive (0) and the selected course to active (1)"""
         try:
-            self.cursor.execute("UPDATE courses SET is_active = 0")
-            self.cursor.execute("UPDATE courses SET is_active = 1 WHERE id = ?", (course_id,))
+            self.cursor.execute("UPDATE courses SET is_active = 0, start_date = NULL")
+            self.cursor.execute("UPDATE courses SET is_active = 1, start_date = ? WHERE id = ?", (start_date_str, course_id,))
             self.connection.commit()
         except Exception as e:
-            print(f"Fehler beim Aktualisieren des aktiven Kurses: {e}")
+            print(f"Error updating active course: {e}")
 
     def get_all_courses(self):
         """lode all Courses"""
-        self.cursor.execute("""SELECT c.id, c.name, c.time, t.type_of_examination, t.is_mandatory, c.is_active
+        self.cursor.execute("""SELECT c.id, c.name, c.time, t.type_of_examination, t.is_mandatory, c.is_active, c.start_date
                                 FROM courses c
                                 LEFT JOIN tests t ON c.test_id = t.id""")
 
         return self.cursor.fetchall()
+
+    def delete_course_from_db(self, course_id):
+        """Deletes a course and the linked test from the db."""
+        try:
+            # Test-ID ermitteln, um den Test ebenfalls zu bereinigen
+            self.cursor.execute("SELECT test_id FROM courses WHERE id = ?", (course_id,))
+            row = self.cursor.fetchone()
+            if row and row[0]:
+                test_id = row[0]
+                self.cursor.execute("DELETE FROM tests WHERE id = ?", (test_id,))
+
+            # Kurs löschen
+            self.cursor.execute("DELETE FROM courses WHERE id = ?", (course_id,))
+            self.connection.commit()
+            print(f"Course with ID {course_id} successfully deleted.")
+        except Exception as e:
+            print(f"Error deleting the course: {e}")
