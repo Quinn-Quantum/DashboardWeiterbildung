@@ -1,0 +1,11 @@
+# Ignoring databases
+*.db
+*.sqlite
+*.sqlite3
+
+# Ignore text files
+*.txt
+
+*.ipynb
+
+*.ui
