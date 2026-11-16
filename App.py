@@ -1,4 +1,5 @@
 import sys
+import os
 from PyQt6.QtWidgets import QApplication, QMainWindow, QDialog, QListWidgetItem
 from PyQt6.QtCore import QDate
 from PyQt6.QtGui import QTextCharFormat, QColor
@@ -9,27 +10,58 @@ from DatabaseConnection import DatabaseConnection
 from GuiMainWindow import UiDialog
 import PoPUpAddCourse
 from PoPUpSelectDate import PoPUpSelectDate
+from PoPUpSetup import PoPUpSetup
 
 class MainWindow(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        # 1. Initialize Database and Dashboard
+        # Initialize Database and Dashboard
         self.db = DatabaseConnection()
         self.dashboard = Dashboard(self.db)
 
-        # 2. Initialize UI class and apply it to the window
+
+        # Initialize UI class and apply it to the window
         self.ui = UiDialog()
         self.ui.setup_ui(self)
 
-        # 3. Connect button click and list selection
+        # Connect button click and list selection
         self.ui.add_button.clicked.connect(self.open_popup)
         self.ui.kurs_listWidget.itemClicked.connect(self.select_active_course)
+
+        #config
+        self.config_file = "time.txt"
+        self.start_date, self.total_months = self.load_or_create_config()
 
         # Setup calendar & load courses
         self.time_for_study = self.dashboard.lade_time()
         self.setup_calendar_periods()
         self.refresh_course_tiles()
+
+    def load_or_create_config(self):
+        """Checks if time.txt exists. If not, the setup dialog opens."""
+        if not os.path.exists(self.config_file):
+            # Setup-Dialog call
+            dialog = PoPUpSetup(None)
+            if dialog.exec() == QDialog.DialogCode.Accepted:
+                start_str, months = dialog.get_setup_data()
+                # In time.txt save
+                with open(self.config_file, "w", encoding="utf-8") as f:
+                    f.write(f"{start_str}\n{months}")
+                return QDate.fromString(start_str, "yyyy-MM-dd"), months
+            else:
+                return QDate.currentDate(), 6
+        else:
+            # read time.txt
+            try:
+                with open(self.config_file, "r", encoding="utf-8") as f:
+                    lines = f.read().splitlines()
+                    start_date = QDate.fromString(lines[0], "yyyy-MM-dd")
+                    months = int(lines[1])
+                    return start_date, months
+            except Exception as e:
+                print(f"Error by time.txt: {e}")
+                return QDate.currentDate(), 6
 
     def open_popup(self):
         dialog =PoPUpAddCourse.PoPUpAddCourse(self)
@@ -135,9 +167,10 @@ class MainWindow(QMainWindow):
                 tile.set_active_style(False)
 
     def setup_calendar_periods(self):
+
         current_year = QDate.currentDate().year()
-        start_date = QDate(current_year, 10, 19)
-        end_date = start_date.addMonths(6)
+        start_date = self.start_date
+        end_date = start_date.addMonths(self.total_months)
 
         fmt = QTextCharFormat()
         fmt.setBackground(QColor("#e2e8f0"))

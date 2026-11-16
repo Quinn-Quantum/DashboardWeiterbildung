@@ -5,3 +5,7 @@
 
 # Ignore text files
 *.txt
+
+*.ipynb
+
+*.ui
