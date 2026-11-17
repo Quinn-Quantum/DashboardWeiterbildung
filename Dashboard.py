@@ -1,6 +1,7 @@
 from typing import List, Optional
 from Course import Course
 from DatabaseConnection import DatabaseConnection
+from datetime import date
 import os
 
 
@@ -25,9 +26,11 @@ class Dashboard:
                 print(f"Error reading the time.txt: {e}")
 
         # Fallback values if the file does not already exist
-        return "2026-01-01", 6
+        today_str = date.today().strftime("%Y-%m-%d")
+        return today_str, 6
 
     def store_in_db(self, name_course, test_name, is_mandatory):
+        """Stores if the test is mandatory"""
         self.db.store_in_db(name_course, test_name, is_mandatory)
 
     def set_aktive_course(self, course_id, start_date_str ):
@@ -35,6 +38,7 @@ class Dashboard:
         self.db.set_active_course_in_db(course_id, start_date_str)
 
     def load_courses_from_db(self):
+        """Load all courses from the database"""
         return self.db.get_all_courses()
 
     def delete_course(self, course_id):
