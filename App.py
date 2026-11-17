@@ -39,6 +39,10 @@ class MainWindow(QMainWindow):
         self.setup_calendar_periods()
         self.refresh_course_tiles()
 
+    def write_in_time(self,start_str,months):
+        with open(self.config_file, "w", encoding="utf-8") as f:
+            f.write(f"{start_str}\n{months}")
+
     def load_or_create_config(self):
         """Checks if time.txt exists. If not, the setup dialog opens."""
         if not os.path.exists(self.config_file):
@@ -47,11 +51,16 @@ class MainWindow(QMainWindow):
             if dialog.exec() == QDialog.DialogCode.Accepted:
                 start_str, months = dialog.get_setup_data()
                 # In time.txt save
-                with open(self.config_file, "w", encoding="utf-8") as f:
-                    f.write(f"{start_str}\n{months}")
+                self.write_in_time(start_str, months)
                 return QDate.fromString(start_str, "yyyy-MM-dd"), months
             else:
-                return QDate.currentDate(), 6
+                # when aborting uses standard values
+                print("Enter default values")
+                default_date = QDate.currentDate()
+                default_months = 6
+                start_str = default_date.toString("yyyy-MM-dd")
+                self.write_in_time(start_str, default_months)
+                return default_date, default_months
         else:
             # read time.txt
             try:
@@ -62,6 +71,11 @@ class MainWindow(QMainWindow):
                     return start_date, months
             except Exception as e:
                 print(f"Error by time.txt: {e}")
+                print("Enter default values")
+                default_date = QDate.currentDate()
+                default_months = 6
+                start_str = default_date.toString("yyyy-MM-dd")
+                self.write_in_time(start_str, default_months)
                 return QDate.currentDate(), 6
 
     def open_popup_add_course(self):
@@ -80,7 +94,6 @@ class MainWindow(QMainWindow):
 
     def refresh_course_tiles(self):
         """Loads courses and restores the saved active course at startup."""
-        self.gui.kurs_listWidget.clear()
         self.gui.kurs_listWidget.clear()
         courses = self.dashboard.load_courses_from_db()
 
