@@ -38,6 +38,7 @@ class PoPUpAddCourse(QDialog):
 
         # submit
         self.btn_ok = QPushButton("OK", self)
+        self.btn_ok.setStyleSheet("background-color: rgb(110, 53, 201); color: white; padding: 6px;")
         self.btn_ok.clicked.connect(self.accept)
         layout.addWidget(self.btn_ok)
 

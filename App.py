@@ -104,13 +104,13 @@ class MainWindow(QMainWindow):
             c_id, name, time, test_name, is_mandatory, is_active, start_date = course_data
             tile = CourseTile(c_id, name, test_name, is_mandatory)
 
-            tile.delete_requested.connect(self.delete_course_action)
+            tile.delete_requested.connect(self.delete_course_action) # add delet option
 
-            item = QListWidgetItem(self.gui.kurs_listWidget)
-            item.setSizeHint(tile.sizeHint())
+            item = QListWidgetItem(self.gui.kurs_listWidget) # pass item to list
+            item.setSizeHint(tile.sizeHint()) # height of the tile communicated
             self.gui.kurs_listWidget.setItemWidget(item, tile)
 
-            # If this course is marked as active in the DB, we will remember it
+            # If this course is marked as active in the DB, it will remember
             if is_active == 1:
                 active_tile_to_restore = tile
                 if start_date:
@@ -124,6 +124,10 @@ class MainWindow(QMainWindow):
 
     def select_active_course(self, item):
         """Called when the user manually clicks on a tile."""
+        # If a dialogue is already open, end immediately
+        if getattr(self, "is_dialog_open", False):
+            return
+
         clicked_tile = self.gui.kurs_listWidget.itemWidget(item)
         if clicked_tile:
             self.is_dialog_open = True
@@ -138,8 +142,9 @@ class MainWindow(QMainWindow):
                     # Update UI & Calendar
                     self.activate_course(clicked_tile, selected_date)
             except Exception as e:
-                print("PopUp for the start date: ", e)
+                print("PopUp for the start date does not work: ", e)
             finally:
+                # no open dialog
                 self.is_dialog_open = False
 
     def activate_course(self, active_tile, start_date: QDate):
@@ -167,13 +172,13 @@ class MainWindow(QMainWindow):
                         padding: 15px;
                     }
                 """)
-                active_display_tile.name_label.setStyleSheet("font-size: 15px; color: white;")
-                active_display_tile.info_label.setStyleSheet("font-size: 13px; color: #f0e6ff;")
+                active_display_tile.name_label.setStyleSheet("font-size: 20px; color: white;")
+                active_display_tile.info_label.setStyleSheet("font-size: 15px; color: white;")
 
                 self.gui.active_course_layout.addWidget(active_display_tile)
                 active_display_tile.show()
 
-                self.gui.aktiv_label.setText(f"Current Course: {tile.name} (Start: {start_date.toString('dd.MM.yyyy')})")
+                self.gui.aktiv_label.setText(f"Aktiver Kurs: {tile.name} (Start: {start_date.toString('dd.MM.yyyy')})")
                 print(f"Current Course loaded/activated: ID {tile.course_id} ({tile.name}) ab {start_date.toString('yyyy-MM-dd')}")
 
                 self.highlight_course_duration(start_date)
@@ -181,8 +186,7 @@ class MainWindow(QMainWindow):
                 tile.set_active_style(False)
 
     def setup_calendar_periods(self):
-
-        current_year = QDate.currentDate().year()
+        """Mark the days for the further education in the calendar"""
         start_date = self.start_date
         end_date = start_date.addMonths(self.total_months)
 
@@ -195,6 +199,7 @@ class MainWindow(QMainWindow):
             d = d.addDays(1)
 
     def highlight_course_duration(self, start_date: QDate):
+        """Mark the days for the active course in the calendar"""
         self.setup_calendar_periods()
         end_date = start_date.addDays(28)
 
@@ -217,7 +222,7 @@ class MainWindow(QMainWindow):
             child = self.gui.active_course_layout.takeAt(0)
             if child.widget():
                 child.widget().deleteLater()
-        self.gui.aktiv_label.setText("Current course")
+        self.gui.aktiv_label.setText("Aktiver Kurs")
         self.setup_calendar_periods()
 
         # Reload course list
