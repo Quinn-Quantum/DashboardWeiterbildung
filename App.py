@@ -7,8 +7,8 @@ from PyQt6.QtGui import QTextCharFormat, QColor
 from CourseTile import CourseTile
 from Dashboard import Dashboard
 from DatabaseConnection import DatabaseConnection
-from GuiMainWindow import UiDialog
-import PoPUpAddCourse
+from GuiMainWindow import GuiMainWindow
+from PoPUpAddCourse import PoPUpAddCourse
 from PoPUpSelectDate import PoPUpSelectDate
 from PoPUpSetup import PoPUpSetup
 
@@ -21,13 +21,14 @@ class MainWindow(QMainWindow):
         self.dashboard = Dashboard(self.db)
 
 
-        # Initialize UI class and apply it to the window
-        self.ui = UiDialog()
-        self.ui.setup_ui(self)
+        # Initialize GUI class and apply it to the window
+        self.gui = GuiMainWindow()
+        self.gui.setup_ui(self)
 
         # Connect button click and list selection
-        self.ui.add_button.clicked.connect(self.open_popup)
-        self.ui.kurs_listWidget.itemClicked.connect(self.select_active_course)
+        self.gui.add_button.clicked.connect(self.open_popup_add_course) # Submission of the reference for later
+        #Course aktiv
+        self.gui.kurs_listWidget.itemClicked.connect(self.select_active_course)
 
         #config
         self.config_file = "time.txt"
@@ -63,8 +64,8 @@ class MainWindow(QMainWindow):
                 print(f"Error by time.txt: {e}")
                 return QDate.currentDate(), 6
 
-    def open_popup(self):
-        dialog =PoPUpAddCourse.PoPUpAddCourse(self)
+    def open_popup_add_course(self):
+        dialog = PoPUpAddCourse(self)
         if dialog.exec() == QDialog.DialogCode.Accepted:
             name_course = dialog.course_name.text()
             test_name = dialog.test_name.text()
@@ -79,8 +80,8 @@ class MainWindow(QMainWindow):
 
     def refresh_course_tiles(self):
         """Loads courses and restores the saved active course at startup."""
-        self.ui.kurs_listWidget.clear()
-        self.ui.kurs_listWidget.clear()
+        self.gui.kurs_listWidget.clear()
+        self.gui.kurs_listWidget.clear()
         courses = self.dashboard.load_courses_from_db()
 
         active_tile_to_restore = None
@@ -92,9 +93,9 @@ class MainWindow(QMainWindow):
 
             tile.delete_requested.connect(self.delete_course_action)
 
-            item = QListWidgetItem(self.ui.kurs_listWidget)
+            item = QListWidgetItem(self.gui.kurs_listWidget)
             item.setSizeHint(tile.sizeHint())
-            self.ui.kurs_listWidget.setItemWidget(item, tile)
+            self.gui.kurs_listWidget.setItemWidget(item, tile)
 
             # If this course is marked as active in the DB, we will remember it
             if is_active == 1:
@@ -110,7 +111,7 @@ class MainWindow(QMainWindow):
 
     def select_active_course(self, item):
         """Called when the user manually clicks on a tile."""
-        clicked_tile = self.ui.kurs_listWidget.itemWidget(item)
+        clicked_tile = self.gui.kurs_listWidget.itemWidget(item)
         if clicked_tile:
             self.is_dialog_open = True
             try:
@@ -130,16 +131,16 @@ class MainWindow(QMainWindow):
 
     def activate_course(self, active_tile, start_date: QDate):
         """Central way to make a tile active and update the calendar."""
-        for i in range(self.ui.kurs_listWidget.count()):
-            it = self.ui.kurs_listWidget.item(i)
-            tile = self.ui.kurs_listWidget.itemWidget(it)
+        for i in range(self.gui.kurs_listWidget.count()):
+            it = self.gui.kurs_listWidget.item(i)
+            tile = self.gui.kurs_listWidget.itemWidget(it)
 
             if tile.course_id == active_tile.course_id:
                 tile.set_active_style(True)
 
                 # Remove old active entry at the top
-                while self.ui.active_course_layout.count():
-                    child = self.ui.active_course_layout.takeAt(0)
+                while self.gui.active_course_layout.count():
+                    child = self.gui.active_course_layout.takeAt(0)
                     if child.widget():
                         child.widget().deleteLater()
 
@@ -156,10 +157,10 @@ class MainWindow(QMainWindow):
                 active_display_tile.name_label.setStyleSheet("font-size: 15px; color: white;")
                 active_display_tile.info_label.setStyleSheet("font-size: 13px; color: #f0e6ff;")
 
-                self.ui.active_course_layout.addWidget(active_display_tile)
+                self.gui.active_course_layout.addWidget(active_display_tile)
                 active_display_tile.show()
 
-                self.ui.aktiv_label.setText(f"Current Course: {tile.name} (Start: {start_date.toString('dd.MM.yyyy')})")
+                self.gui.aktiv_label.setText(f"Current Course: {tile.name} (Start: {start_date.toString('dd.MM.yyyy')})")
                 print(f"Current Course loaded/activated: ID {tile.course_id} ({tile.name}) ab {start_date.toString('yyyy-MM-dd')}")
 
                 self.highlight_course_duration(start_date)
@@ -177,7 +178,7 @@ class MainWindow(QMainWindow):
 
         d = start_date
         while d <= end_date:
-            self.ui.calendarWidget.setDateTextFormat(d, fmt)
+            self.gui.calendarWidget.setDateTextFormat(d, fmt)
             d = d.addDays(1)
 
     def highlight_course_duration(self, start_date: QDate):
@@ -190,7 +191,7 @@ class MainWindow(QMainWindow):
 
         d = start_date
         while d <= end_date:
-            self.ui.calendarWidget.setDateTextFormat(d, fmt)
+            self.gui.calendarWidget.setDateTextFormat(d, fmt)
             d = d.addDays(1)
 
     def delete_course_action(self, course_id):
@@ -199,11 +200,11 @@ class MainWindow(QMainWindow):
         self.dashboard.delete_course(course_id)
 
         # Clear active area (if the deleted course was active)
-        while self.ui.active_course_layout.count():
-            child = self.ui.active_course_layout.takeAt(0)
+        while self.gui.active_course_layout.count():
+            child = self.gui.active_course_layout.takeAt(0)
             if child.widget():
                 child.widget().deleteLater()
-        self.ui.aktiv_label.setText("Current course")
+        self.gui.aktiv_label.setText("Current course")
         self.setup_calendar_periods()
 
         # Reload course list

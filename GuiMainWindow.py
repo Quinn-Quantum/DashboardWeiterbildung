@@ -1,6 +1,6 @@
 from PyQt6 import QtCore, QtWidgets
 
-class UiDialog(object):
+class GuiMainWindow(object):
 
     def setup_ui(self, Dialog):
         Dialog.setObjectName("Plan")
@@ -70,7 +70,7 @@ class UiDialog(object):
 
         self.horizontalLayout_3.addStretch()
 
-        self.add_button = QtWidgets.QPushButton("Öffne Eintragung", parent=self.central_widget)
+        self.add_button = QtWidgets.QPushButton("open add course", parent=self.central_widget)
         self.add_button.setStyleSheet("background-color: rgb(110, 53, 201); color: white;")
         self.add_button.setObjectName("add_button")
         self.horizontalLayout_3.addWidget(self.add_button)

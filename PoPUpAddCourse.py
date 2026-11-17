@@ -1,7 +1,7 @@
 import sys
 from PyQt6.QtWidgets import (
      QDialog, QLineEdit,
-    QPushButton, QRadioButton, QVBoxLayout, QWidget
+    QPushButton, QRadioButton, QVBoxLayout, QLabel
 )
 
 
@@ -9,26 +9,34 @@ class PoPUpAddCourse(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
         self.setWindowTitle("Kurs eintragen")
-        self.resize(250, 150)
+        self.resize(300, 350)
 
         # Layout für das Pop-up
         layout = QVBoxLayout()
-
+        #label for course name
+        layout.addWidget(QLabel("Kurs Name"))
+        # input course
         self.course_name = QLineEdit(self)
-        self.course_name.setPlaceholderText("Kurs Name: ")
         layout.addWidget(self.course_name)
 
+        # label test
+        layout.addWidget(QLabel("Prüfungsartart"))
+        # input test
         self.test_name = QLineEdit(self)
-        self.test_name.setPlaceholderText("Test Art eintragen: ")
         layout.addWidget(self.test_name)
 
-        self.radio_one = QRadioButton("Verpflichtender Test", self)
-        self.radio_two = QRadioButton("Freiwilliger Test", self)
-        self.radio_one.setChecked(True)  # Standardmäßig Option A auswählen
+        # label mandatorily
+        layout.addWidget(QLabel("Ist die Prüfung verpflichtent?"))
+
+        # radio button for mandatorily
+        self.radio_one = QRadioButton("Verpflichtende Prüfung", self)
+        self.radio_two = QRadioButton("Freiwillige Prüfung", self)
+        self.radio_one.setChecked(True)  # Standard option is mandatorily selected
 
         layout.addWidget(self.radio_one)
         layout.addWidget(self.radio_two)
 
+        # submit
         self.btn_ok = QPushButton("OK", self)
         self.btn_ok.clicked.connect(self.accept)
         layout.addWidget(self.btn_ok)
