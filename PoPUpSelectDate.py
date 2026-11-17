@@ -12,7 +12,7 @@ class PoPUpSelectDate(QDialog):
         self.label = QLabel("Wähle das Startdatum für den Kurs (4 Wochen):", self)
         layout.addWidget(self.label)
 
-        # Verwende direkt den QCalendarWidget statt QDateEdit (verhindert den Speicherabsturz)
+        # Use the QCalendarWidget directly instead of QDateEdit (prevents memory crashes)
         self.calendar = QCalendarWidget(self)
         self.calendar.setSelectedDate(QDate.currentDate())
         layout.addWidget(self.calendar)

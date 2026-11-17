@@ -52,7 +52,7 @@ class DatabaseConnection:
                 (name_test, 1 if is_mandatory else 0)
             )
             test_id = self.cursor.lastrowid
-
+            # 4 because my courses always last 4 weeks
             self.cursor.execute(
                 "INSERT INTO courses (name, time, test_id) VALUES (?, ?, ?)",
                 (name_course, 4, test_id)
@@ -82,14 +82,14 @@ class DatabaseConnection:
     def delete_course_from_db(self, course_id):
         """Deletes a course and the linked test from the db."""
         try:
-            # Test-ID ermitteln, um den Test ebenfalls zu bereinigen
+            # Determine test ID to also clean up the test
             self.cursor.execute("SELECT test_id FROM courses WHERE id = ?", (course_id,))
             row = self.cursor.fetchone()
             if row and row[0]:
                 test_id = row[0]
                 self.cursor.execute("DELETE FROM tests WHERE id = ?", (test_id,))
 
-            # Kurs löschen
+            # delete course
             self.cursor.execute("DELETE FROM courses WHERE id = ?", (course_id,))
             self.connection.commit()
             print(f"Course with ID {course_id} successfully deleted.")

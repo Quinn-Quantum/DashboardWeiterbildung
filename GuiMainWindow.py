@@ -6,16 +6,16 @@ class GuiMainWindow(object):
         Dialog.setObjectName("Plan")
         Dialog.resize(1062, 720)
 
-        # 1. Create a central widget for the QMainWindow
+        # Create a central widget for the QMainWindow
         self.central_widget = QtWidgets.QWidget(parent=Dialog)
         self.central_widget.setObjectName("central_widget")
 
-        # 2. Set the main layout to the central widget
+        # Set the main layout to the central widget
         self.main_layout = QtWidgets.QVBoxLayout(self.central_widget)
         self.main_layout.setContentsMargins(15, 15, 15, 15)
         self.main_layout.setSpacing(10)
 
-        # --- First line: Labels at the top ---
+        # First line: Labels at the top
         self.horizontalLayout = QtWidgets.QHBoxLayout()
 
         self.aktiv_label = QtWidgets.QLabel(parent=self.central_widget)
@@ -31,7 +31,7 @@ class GuiMainWindow(object):
         # --- Second line: aktiv course and calendar ---
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout()
 
-        # HIER GEÄNDERT: QWidget statt QColumnView als Container verwenden!
+        #aktive Course
         self.active_course_container = QtWidgets.QWidget(parent=self.central_widget)
         self.active_course_container.setObjectName("active_course_container")
 
@@ -61,7 +61,7 @@ class GuiMainWindow(object):
 
         self.main_layout.addLayout(self.horizontalLayout_2)
 
-        # --- Third line: Course label and add button ---
+        # Third line: Course label and add button
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
 
         self.kurs_label = QtWidgets.QLabel(parent=self.central_widget)
@@ -71,13 +71,13 @@ class GuiMainWindow(object):
         self.horizontalLayout_3.addStretch()
 
         self.add_button = QtWidgets.QPushButton("open add course", parent=self.central_widget)
-        self.add_button.setStyleSheet("background-color: rgb(110, 53, 201); color: white;")
+        self.add_button.setStyleSheet("background-color: rgb(110, 53, 201); color: white; padding: 8px; font-weight: bold;")
         self.add_button.setObjectName("add_button")
         self.horizontalLayout_3.addWidget(self.add_button)
 
         self.main_layout.addLayout(self.horizontalLayout_3)
 
-        # --- Fourth row: Table ---
+        #  Fourth row: List of course
         self.kurs_listWidget = QtWidgets.QListWidget(parent=self.central_widget)
         self.kurs_listWidget.setObjectName("kurs_listWidget")
         self.kurs_listWidget.setStyleSheet("QListWidget { background: transparent; border: none; }")
@@ -89,6 +89,7 @@ class GuiMainWindow(object):
         self.retranslate_ui(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
+    # It came out of the generator, I'm just showing that the code from it isn't quite as nice
     def retranslate_ui(self, Dialog):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Planer"))

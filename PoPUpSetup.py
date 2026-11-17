@@ -9,7 +9,7 @@ class PoPUpSetup(QDialog):
 
         layout = QVBoxLayout()
 
-        self.label_info = QLabel("Willkommen! Bitte gib die Eckdaten deiner Weiterbildung ein:", self)
+        self.label_info = QLabel("Willkommen! Bitte gib die Eckdaten deiner Weiterbildung ein. (Standart ist Heute und 6 Monate)", self)
         self.label_info.setWordWrap(True)
         layout.addWidget(self.label_info)
 
@@ -22,13 +22,13 @@ class PoPUpSetup(QDialog):
         layout.addWidget(QLabel("Gesamtdauer in Monaten:"))
         self.spin_months = QSpinBox(self)
         self.spin_months.setRange(1, 60)
-        self.spin_months.setValue(6)  # Standardmäßig 6 Monate
+        self.spin_months.setValue(6)  # default 6 months
         layout.addWidget(self.spin_months)
 
-        self.btn_ok = QPushButton("Speichern", self)
-        self.btn_ok.setStyleSheet("background-color: rgb(110, 53, 201); color: white; padding: 8px; font-weight: bold;")
-        self.btn_ok.clicked.connect(self.accept)
-        layout.addWidget(self.btn_ok)
+        self.btn_submit = QPushButton("Speichern", self)
+        self.btn_submit.setStyleSheet("background-color: rgb(110, 53, 201); color: white; padding: 8px; font-weight: bold;")
+        self.btn_submit.clicked.connect(self.accept)
+        layout.addWidget(self.btn_submit)
 
         self.setLayout(layout)
 
