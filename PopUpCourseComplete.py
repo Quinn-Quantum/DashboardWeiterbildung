@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import (
      QDialog,
-    QPushButton, QRadioButton, QVBoxLayout, QLabel, QComboBox
+    QPushButton, QRadioButton, QVBoxLayout, QLabel
 )
 
 class PopUpCourseComplete(QDialog):

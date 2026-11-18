@@ -1,4 +1,4 @@
-from typing import List, Optional
+from typing import Optional
 from Course import Course
 from DatabaseConnection import DatabaseConnection
 from datetime import date

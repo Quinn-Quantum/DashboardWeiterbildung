@@ -1,7 +1,6 @@
 from dataclasses import dataclass
 from Test import Test
 
-
 @dataclass
 class Course:
     name: str

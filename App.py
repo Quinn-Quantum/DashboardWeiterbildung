@@ -18,11 +18,15 @@ class MainWindow(QMainWindow):
         super().__init__()
 
         # Initialize Database and Dashboard
+
         self.db = DatabaseConnection()
         self.dashboard = Dashboard(self.db)
 
         #aktive course
         self.active_course_id = None
+
+        self.is_dialog_open = None
+
 
         # Initialize GUI class and apply it to the window
         self.gui = GuiMainWindow()
@@ -125,7 +129,7 @@ class MainWindow(QMainWindow):
                     active_start_date = QDate.currentDate()
 
         # If an active course is found, set the UI directly to it
-        if active_tile_to_restore:
+        if active_tile_to_restore and active_start_date is not None:
             self.activate_course(active_tile_to_restore, active_start_date)
 
     def select_active_course(self, item):
