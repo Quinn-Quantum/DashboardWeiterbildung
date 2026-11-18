@@ -27,6 +27,7 @@ class DatabaseConnection:
                 test_id INTEGER,
                 is_active INTEGER DEFAULT 0,
                 start_date TEXT,
+                is_complete INTEGER DEFAULT 0,
                 FOREIGN KEY (test_id) REFERENCES tests (id)
             )
         """)
@@ -73,7 +74,7 @@ class DatabaseConnection:
 
     def get_all_courses(self):
         """lode all Courses"""
-        self.cursor.execute("""SELECT c.id, c.name, c.time, t.type_of_examination, t.is_mandatory, c.is_active, c.start_date
+        self.cursor.execute("""SELECT c.id, c.name, c.time, t.type_of_examination, t.is_mandatory, c.is_active, c.start_date, c.is_complete
                                 FROM courses c
                                 LEFT JOIN tests t ON c.test_id = t.id""")
 
@@ -95,3 +96,12 @@ class DatabaseConnection:
             print(f"Course with ID {course_id} successfully deleted.")
         except Exception as e:
             print(f"Error deleting the course: {e}")
+
+    def mark_cours_as_complet(self,course_id):
+        try:
+            self.cursor.execute("UPDATE courses SET is_complete = 1, is_active = 0 WHERE id = ?",
+                                ( course_id,))
+            self.connection.commit()
+            print(f"Course ID {course_id} successfully marked as complete and set to inactive.")
+        except Exception as e:
+            print(f"Error updating complet course: {e}")

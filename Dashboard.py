@@ -43,3 +43,6 @@ class Dashboard:
     def delete_course(self, course_id):
         """Forwards the delete command to the database."""
         self.db.delete_course_from_db(course_id)
+
+    def mark_cours_as_complet(self,course_id):
+        self.db.mark_cours_as_complet(course_id)

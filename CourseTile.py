@@ -5,12 +5,13 @@ from PyQt6.QtCore import Qt, pyqtSignal
 class CourseTile(QFrame):
     delete_requested = pyqtSignal(int)
 
-    def __init__(self, course_id, name, test_name, is_mandatory, parent=None):
+    def __init__(self, course_id, name, test_name, is_mandatory, is_complete=0, parent=None):
         super().__init__(parent)
         self.course_id = course_id
         self.name = name
         self.test_name = test_name
         self.is_mandatory = is_mandatory
+        self.is_complete = is_complete
         self.is_active = False
 
         self.setCursor(Qt.CursorShape.PointingHandCursor)
@@ -53,9 +54,14 @@ class CourseTile(QFrame):
         top_layout.addWidget(self.delete_btn)
         main_layout.addLayout(top_layout)
 
-        mandatory_text = "Verpflichtend" if is_mandatory else "Freiwillig"
-        self.info_label = QLabel(f"<b>Prüfung:</b> {test_name} ({mandatory_text})")
-        self.info_label.setStyleSheet("font-size: 12px; color: #666;")
+        if self.is_complete == 1:
+            self.info_label = QLabel(f"<b>Komplet</b>)")
+            self.info_label.setStyleSheet("font-size: 12px; color: #666;")
+        else:
+            mandatory_text = "Verpflichtend" if is_mandatory else "Freiwillig"
+            self.info_label = QLabel(f"<b>Prüfung:</b> {test_name} ({mandatory_text})")
+            self.info_label.setStyleSheet("font-size: 12px; color: #666;")
+
         main_layout.addWidget(self.info_label)
 
         self.update_style()

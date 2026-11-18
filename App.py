@@ -11,6 +11,7 @@ from GuiMainWindow import GuiMainWindow
 from PoPUpAddCourse import PoPUpAddCourse
 from PoPUpSelectDate import PoPUpSelectDate
 from PoPUpSetup import PoPUpSetup
+from PopUpCourseComplete import PopUpCourseComplete
 
 class MainWindow(QMainWindow):
     def __init__(self):
@@ -20,6 +21,8 @@ class MainWindow(QMainWindow):
         self.db = DatabaseConnection()
         self.dashboard = Dashboard(self.db)
 
+        #aktive course
+        self.active_course_id = None
 
         # Initialize GUI class and apply it to the window
         self.gui = GuiMainWindow()
@@ -38,6 +41,7 @@ class MainWindow(QMainWindow):
         self.time_for_study = self.dashboard.lade_time()
         self.setup_calendar_periods()
         self.refresh_course_tiles()
+
 
     def write_in_time(self,start_str,months):
         with open(self.config_file, "w", encoding="utf-8") as f:
@@ -94,6 +98,7 @@ class MainWindow(QMainWindow):
 
     def refresh_course_tiles(self):
         """Loads courses and restores the saved active course at startup."""
+        self.active_course_id = None
         self.gui.kurs_listWidget.clear()
         courses = self.dashboard.load_courses_from_db()
 
@@ -101,8 +106,8 @@ class MainWindow(QMainWindow):
         active_start_date = None
 
         for course_data in courses:
-            c_id, name, time, test_name, is_mandatory, is_active, start_date = course_data
-            tile = CourseTile(c_id, name, test_name, is_mandatory)
+            c_id, name, time, test_name, is_mandatory, is_active, start_date , is_complete= course_data
+            tile = CourseTile(c_id, name, test_name, is_mandatory, is_complete)
 
             tile.delete_requested.connect(self.delete_course_action) # add delet option
 
@@ -113,6 +118,7 @@ class MainWindow(QMainWindow):
             # If this course is marked as active in the DB, it will remember
             if is_active == 1:
                 active_tile_to_restore = tile
+                self.active_course_id = tile.course_id
                 if start_date:
                     active_start_date = QDate.fromString(start_date, "yyyy-MM-dd")
                 else:
@@ -130,22 +136,29 @@ class MainWindow(QMainWindow):
 
         clicked_tile = self.gui.kurs_listWidget.itemWidget(item)
         if clicked_tile:
-            self.is_dialog_open = True
+            # checks if the course is complete
+            if getattr(clicked_tile, "is_complete", 0) == 1:
+                print(f"Kurs '{clicked_tile.name}' ist bereits abgeschlossen und kann nicht mehr ausgewählt werden.")
+                return
             try:
-                date_dialog = PoPUpSelectDate(None)
-                if date_dialog.exec() == QDialog.DialogCode.Accepted:
-                    selected_date = date_dialog.get_selected_date()
-                    date_str = selected_date.toString("yyyy-MM-dd")
+                self.is_dialog_open = True
+                if clicked_tile.course_id == self.active_course_id:
+                    self.open_popup_complete_cours(clicked_tile)
+                else:
+                    date_dialog = PoPUpSelectDate(None)
+                    if date_dialog.exec() == QDialog.DialogCode.Accepted:
+                        selected_date = date_dialog.get_selected_date()
+                        date_str = selected_date.toString("yyyy-MM-dd")
 
-                    # Save to database
-                    self.dashboard.set_aktive_course(clicked_tile.course_id, date_str)
-                    # Update UI & Calendar
-                    self.activate_course(clicked_tile, selected_date)
+                        # Save to database
+                        self.dashboard.set_aktive_course(clicked_tile.course_id, date_str)
+                        # Update UI & Calendar
+                        self.activate_course(clicked_tile, selected_date)
             except Exception as e:
-                print("PopUp for the start date does not work: ", e)
+                    print("PopUp for the start date does not work: ", e)
             finally:
-                # no open dialog
-                self.is_dialog_open = False
+                    # no open dialog
+                    self.is_dialog_open = False
 
     def activate_course(self, active_tile, start_date: QDate):
         """Central way to make a tile active and update the calendar."""
@@ -163,6 +176,7 @@ class MainWindow(QMainWindow):
                         child.widget().deleteLater()
 
                 # New Active Tile
+                self.active_course_id = active_tile.course_id
                 active_display_tile = CourseTile(tile.course_id, tile.name, tile.test_name, tile.is_mandatory)
                 active_display_tile.setStyleSheet("""
                     CourseTile {
@@ -218,16 +232,35 @@ class MainWindow(QMainWindow):
         self.dashboard.delete_course(course_id)
 
         # Clear active area (if the deleted course was active)
+        self.clear_aktiv_course()
+
+        # Reload course list
+        self.refresh_course_tiles()
+        print(f"Course ID {course_id} was deleted immediately.")
+
+    def open_popup_complete_cours(self, clicked_tile):
+        complet_dialog = PopUpCourseComplete(None)
+        if complet_dialog.exec() == QDialog.DialogCode.Accepted:
+            is_complet = complet_dialog.radio_one.isChecked()
+            if is_complet:
+                # save in db
+                self.dashboard.mark_cours_as_complet(clicked_tile.course_id)
+                self.active_course_id = None
+
+                # Clear active area (if the deleted course was active)
+                self.clear_aktiv_course()
+                print(f"Kurs {clicked_tile.name} wurde als komplett markiert.")
+
+    def clear_aktiv_course(self):
+        """Clear the aktiv course list"""
         while self.gui.active_course_layout.count():
             child = self.gui.active_course_layout.takeAt(0)
             if child.widget():
                 child.widget().deleteLater()
         self.gui.aktiv_label.setText("Aktiver Kurs")
         self.setup_calendar_periods()
-
-        # Reload course list
         self.refresh_course_tiles()
-        print(f"Course ID {course_id} was deleted immediately.")
+
 
 
 if __name__ == "__main__":
