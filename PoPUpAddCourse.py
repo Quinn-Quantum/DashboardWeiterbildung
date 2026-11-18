@@ -1,8 +1,10 @@
 import sys
 from PyQt6.QtWidgets import (
      QDialog, QLineEdit,
-    QPushButton, QRadioButton, QVBoxLayout, QLabel
+    QPushButton, QRadioButton, QVBoxLayout, QLabel, QComboBox
 )
+
+from TestTypes import TestTypes
 
 
 class PoPUpAddCourse(QDialog):
@@ -22,7 +24,9 @@ class PoPUpAddCourse(QDialog):
         # label test
         layout.addWidget(QLabel("Prüfungsartart"))
         # input test
-        self.test_name = QLineEdit(self)
+        self.test_name = QComboBox(self)
+        for test in TestTypes:
+            self.test_name.addItem(test.value, test)
         layout.addWidget(self.test_name)
 
         # label mandatorily
@@ -43,3 +47,7 @@ class PoPUpAddCourse(QDialog):
         layout.addWidget(self.btn_ok)
 
         self.setLayout(layout)
+
+    def get_selected_test_type(self):
+        """Return the selected test type"""
+        return self.test_name.currentText() # currentText() returns the String from the Enum

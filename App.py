@@ -82,7 +82,7 @@ class MainWindow(QMainWindow):
         dialog = PoPUpAddCourse(self)
         if dialog.exec() == QDialog.DialogCode.Accepted:
             name_course = dialog.course_name.text()
-            test_name = dialog.test_name.text()
+            test_name = dialog.get_selected_test_type()
             is_mandatory = dialog.radio_one.isChecked()
 
             self.dashboard.store_in_db(name_course, test_name, is_mandatory)

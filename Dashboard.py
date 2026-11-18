@@ -8,7 +8,6 @@ import os
 class Dashboard:
     def __init__(self, db: DatabaseConnection):
         self.db = db
-        self.course_list: List[Course] = []
         self.aktive_course: Optional[Course] = None
         self.period_datei = "time.txt"
 
