@@ -1,6 +1,8 @@
 import sqlite3
 import os
 
+from PyQt6.QtCore import QDate
+
 
 class DatabaseConnection:
     def __init__(self, db_name="coursesData.db"):
@@ -11,6 +13,8 @@ class DatabaseConnection:
         # Connect (creates the file if it's not there)
         self.connection = sqlite3.connect(self.db_name)
         self.cursor = self.connection.cursor()
+        self.cursor.execute("PRAGMA foreign_keys = ON;")
+
 
         # If the DB is new, create tables
         if not db_exists:
@@ -63,12 +67,21 @@ class DatabaseConnection:
         except Exception as e:
             print(f"Failed to save to db: {e}")
 
-    def set_active_course_in_db(self, course_id, start_date_str):
+    def set_active_course_in_db(self, course_id, start_date):
         """Set all courses to inactive (0) and the selected course to active (1)"""
+        effective_date = (
+            start_date if (start_date is not None and start_date.isValid()) else QDate.currentDate()
+        )
+
+        date_str = effective_date.toString("yyyy-MM-dd")
+
         try:
             self.cursor.execute("UPDATE courses SET is_active = 0, start_date = NULL")
-            self.cursor.execute("UPDATE courses SET is_active = 1, start_date = ? WHERE id = ?", (start_date_str, course_id,))
+            self.cursor.execute("UPDATE courses SET is_active = 1, start_date = ? WHERE id = ?",
+                (date_str, course_id),
+            )
             self.connection.commit()
+            print(f"Active course {course_id} updated in database ")
         except Exception as e:
             print(f"Error updating active course: {e}")
 
@@ -86,12 +99,14 @@ class DatabaseConnection:
             # Determine test ID to also clean up the test
             self.cursor.execute("SELECT test_id FROM courses WHERE id = ?", (course_id,))
             row = self.cursor.fetchone()
+            # delete course
+            self.cursor.execute("DELETE FROM courses WHERE id = ?", (course_id,))
+
             if row and row[0]:
                 test_id = row[0]
                 self.cursor.execute("DELETE FROM tests WHERE id = ?", (test_id,))
 
-            # delete course
-            self.cursor.execute("DELETE FROM courses WHERE id = ?", (course_id,))
+
             self.connection.commit()
             print(f"Course with ID {course_id} successfully deleted.")
         except Exception as e:

@@ -2,6 +2,6 @@ from enum import Enum
 
 class TestTypes(Enum):
     KLAUSUR = "Klausur"
-    PORTFOLIO = "Porfolio"
+    PORTFOLIO = "Portfolio"
     PREASENTATION = "Präsentation"
     ESSAY = "Essay"

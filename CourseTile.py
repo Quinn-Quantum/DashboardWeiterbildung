@@ -55,7 +55,7 @@ class CourseTile(QFrame):
         main_layout.addLayout(top_layout)
 
         if self.is_complete == 1:
-            self.info_label = QLabel(f"<b>Komplet</b>)")
+            self.info_label = QLabel(f"<b>Komplett</b>)")
             self.info_label.setStyleSheet("font-size: 12px; color: #666;")
         else:
             mandatory_text = "Verpflichtend" if is_mandatory else "Freiwillig"

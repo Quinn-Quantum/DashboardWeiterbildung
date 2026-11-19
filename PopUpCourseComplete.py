@@ -3,6 +3,9 @@ from PyQt6.QtWidgets import (
     QPushButton, QRadioButton, QVBoxLayout, QLabel
 )
 
+from button_helper import ok_button
+
+
 class PopUpCourseComplete(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -25,7 +28,5 @@ class PopUpCourseComplete(QDialog):
 
         layout.addStretch()
 
-        self.btn_ok = QPushButton("OK", self)
-        self.btn_ok.setStyleSheet("background-color: rgb(110, 53, 201); color: white; padding: 6px;")
-        self.btn_ok.clicked.connect(self.accept)
+        self.btn_ok = ok_button(self, on_click=self.accept)
         layout.addWidget(self.btn_ok)

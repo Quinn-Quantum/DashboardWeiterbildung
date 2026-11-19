@@ -1,6 +1,9 @@
 from PyQt6.QtWidgets import QDialog, QVBoxLayout, QLabel, QCalendarWidget, QPushButton
 from PyQt6.QtCore import QDate
 
+from button_helper import ok_button
+
+
 class PoPUpSelectDate(QDialog):
     def __init__(self, parent=None):
         super().__init__(parent)
@@ -17,9 +20,7 @@ class PoPUpSelectDate(QDialog):
         self.calendar.setSelectedDate(QDate.currentDate())
         layout.addWidget(self.calendar)
 
-        self.btn_ok = QPushButton("OK", self)
-        self.btn_ok.setStyleSheet("background-color: rgb(110, 53, 201); color: white; padding: 6px;")
-        self.btn_ok.clicked.connect(self.accept)
+        self.btn_ok = ok_button(self, on_click=self.accept)
         layout.addWidget(self.btn_ok)
 
         self.setLayout(layout)

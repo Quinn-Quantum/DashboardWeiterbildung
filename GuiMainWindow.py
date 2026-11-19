@@ -86,13 +86,12 @@ class GuiMainWindow(object):
         # Pass the central widget to the QMainWindow
         Dialog.setCentralWidget(self.central_widget)
 
-        self.retranslate_ui(Dialog)
+        self.retranslate_ui()
         QtCore.QMetaObject.connectSlotsByName(Dialog)
 
     # It came out of the generator, I'm just showing that the code from it isn't quite as nice
-    def retranslate_ui(self, Dialog):
+    def retranslate_ui(self):
         _translate = QtCore.QCoreApplication.translate
-        Dialog.setWindowTitle(_translate("Dialog", "Planer"))
         self.aktiv_label.setText(_translate("Dialog", "Aktueller Kurs"))
         self.calender_label.setText(_translate("Dialog", "Kalender"))
         self.kurs_label.setText(_translate("Dialog", "Kurse"))

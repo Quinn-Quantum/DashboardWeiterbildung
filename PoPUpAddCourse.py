@@ -4,7 +4,7 @@ from PyQt6.QtWidgets import (
 )
 
 from TestTypes import TestTypes
-
+from button_helper import ok_button
 
 class PoPUpAddCourse(QDialog):
     def __init__(self, parent=None):
@@ -21,7 +21,7 @@ class PoPUpAddCourse(QDialog):
         layout.addWidget(self.course_name)
 
         # label test
-        layout.addWidget(QLabel("Prüfungsartart"))
+        layout.addWidget(QLabel("Prüfungsart"))
         # input test
         self.test_name = QComboBox(self)
         for test in TestTypes:
@@ -29,7 +29,7 @@ class PoPUpAddCourse(QDialog):
         layout.addWidget(self.test_name)
 
         # label mandatorily
-        layout.addWidget(QLabel("Ist die Prüfung verpflichtent?"))
+        layout.addWidget(QLabel("Ist die Prüfung verpflichtend?"))
 
         # radio button for mandatorily
         self.radio_one = QRadioButton("Verpflichtende Prüfung", self)
@@ -40,9 +40,7 @@ class PoPUpAddCourse(QDialog):
         layout.addWidget(self.radio_two)
 
         # submit
-        self.btn_ok = QPushButton("OK", self)
-        self.btn_ok.setStyleSheet("background-color: rgb(110, 53, 201); color: white; padding: 6px;")
-        self.btn_ok.clicked.connect(self.accept)
+        self.btn_ok = ok_button(self, on_click=self.accept)
         layout.addWidget(self.btn_ok)
 
         self.setLayout(layout)
