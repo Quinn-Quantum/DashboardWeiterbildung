@@ -7,6 +7,7 @@ class ConfigManager:
         self.default_months = default_months
 
     def write(self, start_str: str, months: int) -> None:
+        """Writes start, date, and time of the training in txt"""
         with open(self.filepath, "w", encoding="utf-8") as f:
             f.write(f"{start_str}\n{months}")
 
@@ -31,6 +32,7 @@ class ConfigManager:
         return default_date_str, self.default_months
 
     def load_or_default(self) -> tuple[QDate, int]:
+        """returns default values"""
         default_date = QDate.currentDate()
         default_months = 6
 

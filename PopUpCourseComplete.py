@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import (
      QDialog,
-    QPushButton, QRadioButton, QVBoxLayout, QLabel
+     QRadioButton, QVBoxLayout, QLabel
 )
 
 from button_helper import ok_button

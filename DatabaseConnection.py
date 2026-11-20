@@ -113,6 +113,7 @@ class DatabaseConnection:
             print(f"Error deleting the course: {e}")
 
     def mark_cours_as_complet(self,course_id):
+        """Updates the completion status of a course"""
         try:
             self.cursor.execute("UPDATE courses SET is_complete = 1, is_active = 0 WHERE id = ?",
                                 ( course_id,))

@@ -3,6 +3,7 @@ from PyQt6.QtCore import Qt, pyqtSignal
 
 
 class CourseTile(QFrame):
+    """Defines the tile for a course"""
     delete_requested = pyqtSignal(int)
 
     def __init__(self, course_id, name, test_name, is_mandatory, is_complete=0, parent=None):
@@ -67,10 +68,12 @@ class CourseTile(QFrame):
         self.update_style()
 
     def set_active_style(self, active: bool):
+        """Sets the active style of the course"""
         self.is_active = active
         self.update_style()
 
     def update_style(self):
+        """Updates the style of the course"""
         if self.is_active:
             self.setStyleSheet("""
                 CourseTile {

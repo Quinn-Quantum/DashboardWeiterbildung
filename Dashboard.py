@@ -34,6 +34,7 @@ class Dashboard:
         self.db.delete_course_from_db(course_id)
 
     def mark_cours_as_complet(self,course_id):
+        """Forwards the mark command to the database."""
         self.db.mark_cours_as_complet(course_id)
 
     def remaining_training_days(self) -> int:
