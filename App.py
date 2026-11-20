@@ -146,13 +146,34 @@ class MainWindow(QMainWindow):
         self.refresh_course_tiles()
         print(f"Course ID {course_id} was deleted immediately.")
 
+    def edit_course_action(self, course_id:int ):
+        row = self.dashboard.get_course_by_id(course_id)
+        if row is None:
+            return
+        db_course_id, course_name, test_type_of_examination, test_is_mandatory = self.dashboard.get_cours_by_id(course_id)
+        dialog = PoPUpAddCourse(
+            parent=self,
+            course_id=db_course_id,
+            course_name=course_name,
+            test_type_of_examination=test_type_of_examination,
+            test_is_mandatory=test_is_mandatory,
+        )
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            name_course = dialog.course_name.text().strip()
+            selected_test = dialog.get_selected_test_type()
+            test_value = selected_test.value if selected_test is not None else None
+            is_mandatory = dialog.radio_one.isChecked()
+
+            self.dashboard.update_in_db(db_course_id, name_course, test_value, is_mandatory)
+            self.refresh_course_tiles()
+
     def open_popup_complete_cours(self, clicked_tile):
         """Opens the course-completion dialog and updates the database if confirmed."""
         complet_dialog = PopUpCourseComplete(self)
         if complet_dialog.exec() == QDialog.DialogCode.Accepted:
             is_complet = complet_dialog.radio_one.isChecked()
             if is_complet:
-                self.dashboard.mark_cours_as_complet(clicked_tile.course_id)
+                self.dashboard.mark_course_as_complete(clicked_tile.course_id)
                 self.active_course_id = None
                 self.refresh_course_tiles()
                 print(f"Kurs {clicked_tile.name} wurde als komplett markiert.")

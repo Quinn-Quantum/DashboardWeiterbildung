@@ -93,6 +93,19 @@ class DatabaseConnection:
 
         return self.cursor.fetchall()
 
+    def get_course_by_id(self,course_id):
+        """lode Courses by ID"""
+        self.cursor.execute("""SELECT c.id, c.name, t.type_of_examination, t.is_mandatory
+                                From courses c 
+                                LEFT JOIN tests t ON c.test_id = t.id
+                                WHERE c.id = ?""", (course_id,))
+        return self.cursor.fetchone()
+
+    def update_course_in_db(self,db_course_id, name_course, test_value, is_mandatory):
+        self.cursor.execute("""
+                            UPDATE courses SET name = ?, test_value = ?, is_mandatory = ?
+                            """,(name_course, test_value, is_mandatory))
+
     def delete_course_from_db(self, course_id):
         """Deletes a course and the linked test from the db."""
         try:

@@ -1,10 +1,11 @@
-from PyQt6.QtWidgets import QFrame, QVBoxLayout, QHBoxLayout, QLabel, QPushButton
+from PyQt6.QtWidgets import QFrame, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QStyle
 from PyQt6.QtCore import Qt, pyqtSignal
 
 
 class CourseTile(QFrame):
     """Defines the tile for a course"""
     delete_requested = pyqtSignal(int)
+    edit_requested = pyqtSignal(int)
 
     def __init__(self, course_id, name, test_name, is_mandatory, is_complete=0, parent=None):
         super().__init__(parent)
@@ -56,12 +57,20 @@ class CourseTile(QFrame):
         main_layout.addLayout(top_layout)
 
         if self.is_complete == 1:
-            self.info_label = QLabel(f"<b>Komplett</b>)")
+            self.info_label = QLabel(f"<b>Komplett</b>")
             self.info_label.setStyleSheet("font-size: 12px; color: #666;")
         else:
             mandatory_text = "Verpflichtend" if is_mandatory else "Freiwillig"
             self.info_label = QLabel(f"<b>Prüfung:</b> {test_name} ({mandatory_text})")
             self.info_label.setStyleSheet("font-size: 12px; color: #666;")
+
+            self.edit_btn = QPushButton(self)
+            self.edit_btn.setIcon(
+                self.style().standardIcon(QStyle.StandardPixmap.SP_FileDialogContentsView)
+            )
+            self.edit_btn.setToolTip("Kurs bearbeiten")  # Hilfreich, wenn kein Text sichtbar ist
+            self.edit_btn.clicked.connect(lambda: self.edit_requested.emit(self.course_id))
+            main_layout.addWidget(self.edit_btn)
 
         main_layout.addWidget(self.info_label)
 

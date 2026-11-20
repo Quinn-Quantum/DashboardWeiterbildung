@@ -29,11 +29,19 @@ class Dashboard:
         """Load all courses from the database"""
         return self.db.get_all_courses()
 
+    def get_course_by_id(self, course_id: int):
+        """Gets course by id"""
+        return self.db.get_course_by_id(course_id)
+
+    def update_in_db(self, db_course_id, name_course, test_value, is_mandatory):
+        self.db.update_course_in_db(db_course_id, name_course, test_value, is_mandatory)
+
+
     def delete_course(self, course_id):
         """Forwards the delete command to the database."""
         self.db.delete_course_from_db(course_id)
 
-    def mark_cours_as_complet(self,course_id):
+    def mark_course_as_complete(self, course_id):
         """Forwards the mark command to the database."""
         self.db.mark_cours_as_complet(course_id)
 
