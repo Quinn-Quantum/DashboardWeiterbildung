@@ -35,7 +35,7 @@ def mark_active_course_duration(
         duration_days: int = 28,
 ) -> None:
     """Mark current price in the calendar"""
-    # Erst Gesamtzeitraum neu setzen, damit alte Kursmarkierungen sauber verschwinden
+    # First, reset the entire period so that old price markers disappear cleanly
     mark_study_period(calendar, study_start, total_months)
     course_end = course_start.addDays(duration_days)
     highlight_period(

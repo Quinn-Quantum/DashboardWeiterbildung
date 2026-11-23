@@ -112,7 +112,7 @@ class DatabaseConnection:
         except Exception as e:
             print(f"Error deleting the course: {e}")
 
-    def mark_cours_as_complet(self,course_id):
+    def mark_course_as_complete(self,course_id):
         """Updates the completion status of a course"""
         try:
             self.cursor.execute("UPDATE courses SET is_complete = 1, is_active = 0 WHERE id = ?",
@@ -120,4 +120,4 @@ class DatabaseConnection:
             self.connection.commit()
             print(f"Course ID {course_id} successfully marked as complete and set to inactive.")
         except Exception as e:
-            print(f"Error updating complet course: {e}")
+            print(f"Error updating complete course: {e}")

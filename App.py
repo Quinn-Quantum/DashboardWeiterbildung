@@ -101,13 +101,13 @@ class MainWindow(QMainWindow):
         if clicked_tile:
             # Skip already completed courses
             if getattr(clicked_tile, "is_complete", 0) == 1:
-                print(f"Kurs '{clicked_tile.name}' ist bereits abgeschlossen und kann nicht mehr ausgewählt werden.")
+                print(f"Course '{clicked_tile.name}' is already completed and can no longer be selected.")
                 return
 
             try:
                 self.is_dialog_open = True
                 if clicked_tile.course_id == self.active_course_id:
-                    self.open_popup_complete_cours(clicked_tile)
+                    self.open_popup_complete_course(clicked_tile)
                 else:
                     date_dialog = PoPUpSelectDate(self)
                     if date_dialog.exec() == QDialog.DialogCode.Accepted:
@@ -137,7 +137,7 @@ class MainWindow(QMainWindow):
             self.total_months,
             start_date,
         )
-        print(f"Current Course loaded/activated: ID {active_tile.course_id} ({active_tile.name}) ab {start_date.toString('yyyy-MM-dd')}")
+        print(f"Current Course loaded/activated: ID {active_tile.course_id} ({active_tile.name}) from {start_date.toString('yyyy-MM-dd')}")
         return active_tile
 
     def delete_course_action(self, course_id):
@@ -146,16 +146,16 @@ class MainWindow(QMainWindow):
         self.refresh_course_tiles()
         print(f"Course ID {course_id} was deleted immediately.")
 
-    def open_popup_complete_cours(self, clicked_tile):
+    def open_popup_complete_course(self, clicked_tile):
         """Opens the course-completion dialog and updates the database if confirmed."""
-        complet_dialog = PopUpCourseComplete(self)
-        if complet_dialog.exec() == QDialog.DialogCode.Accepted:
-            is_complet = complet_dialog.radio_one.isChecked()
-            if is_complet:
-                self.dashboard.mark_cours_as_complet(clicked_tile.course_id)
+        complete_dialog = PopUpCourseComplete(self)
+        if complete_dialog.exec() == QDialog.DialogCode.Accepted:
+            is_complete = complete_dialog.radio_one.isChecked()
+            if is_complete:
+                self.dashboard.mark_course_as_complete(clicked_tile.course_id)
                 self.active_course_id = None
                 self.refresh_course_tiles()
-                print(f"Kurs {clicked_tile.name} wurde als komplett markiert.")
+                print(f"Course {clicked_tile.name} was marked as complete.")
 
 
 if __name__ == "__main__":

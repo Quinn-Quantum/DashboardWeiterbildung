@@ -25,7 +25,7 @@ class CourseTile(QFrame):
         # Top Panel: Horizontal Layout for Course Name and Delete Buttton
         top_layout = QHBoxLayout()
 
-        self.name_label = QLabel(f"<b>Course:</b> {name}")
+        self.name_label = QLabel(f"<b>Kurse:</b> {name}")
         self.name_label.setStyleSheet("font-size: 14px; color: #333;")
         top_layout.addWidget(self.name_label)
 

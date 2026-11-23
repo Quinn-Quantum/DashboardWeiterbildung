@@ -46,9 +46,9 @@ class ConfigManager:
                 start_date = QDate.fromString(lines[0], "yyyy-MM-dd")
                 months = int(lines[1])
                 if not start_date.isValid():
-                    raise ValueError("Ungültiges Startdatum")
+                    raise ValueError("Invalid start date")
                 return start_date, months
         except Exception as e:
-            print(f"Fehler bei {self.filepath}: {e} – nutze Standardwerte.")
+            print(f"Error during {self.filepath}: {e} – use default values.")
             self.write(default_date.toString("yyyy-MM-dd"), default_months)
             return default_date, default_months
