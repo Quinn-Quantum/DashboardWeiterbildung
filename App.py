@@ -39,7 +39,7 @@ class MainWindow(QMainWindow):
 
         # Connect button click and list selection
         self.gui.add_button.clicked.connect(self.open_popup_add_course)
-        self.gui.kurs_listWidget.itemClicked.connect(self.select_active_course)
+        self.gui.course_listWidget.itemClicked.connect(self.select_active_course)
 
         # Load config and setup calendar & courses
         self.start_date, self.total_months = self._init_config_with_setup()
@@ -80,7 +80,7 @@ class MainWindow(QMainWindow):
         courses = self.dashboard.load_courses_from_db()
 
         active_tile, restored_id, active_start_date = populate_course_list(
-            self.gui.kurs_listWidget,
+            self.gui.course_listWidget,
             courses,
             self.delete_course_action,
         )
@@ -97,7 +97,7 @@ class MainWindow(QMainWindow):
         if getattr(self, "is_dialog_open", False):
             return
 
-        clicked_tile = self.gui.kurs_listWidget.itemWidget(item)
+        clicked_tile = self.gui.course_listWidget.itemWidget(item)
         if clicked_tile:
             # Skip already completed courses
             if getattr(clicked_tile, "is_complete", 0) == 1:
@@ -124,7 +124,7 @@ class MainWindow(QMainWindow):
     def activate_course(self, active_tile, start_date: QDate):
         """Activates a course in the UI, updates list styles, and highlights the calendar."""
         self.active_course_id = active_tile.course_id
-        update_course_tile_styles(self.gui.kurs_listWidget, self.active_course_id)
+        update_course_tile_styles(self.gui.course_listWidget, self.active_course_id)
         set_active_course_banner(
             self.gui.active_course_layout,
             self.gui.aktiv_label,

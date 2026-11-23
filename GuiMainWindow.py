@@ -64,9 +64,9 @@ class GuiMainWindow(object):
         # Third line: Course label and add button
         self.horizontalLayout_3 = QtWidgets.QHBoxLayout()
 
-        self.kurs_label = QtWidgets.QLabel(parent=self.central_widget)
-        self.kurs_label.setObjectName("kurs_label")
-        self.horizontalLayout_3.addWidget(self.kurs_label)
+        self.course_label = QtWidgets.QLabel(parent=self.central_widget)
+        self.course_label.setObjectName("course_label")
+        self.horizontalLayout_3.addWidget(self.course_label)
 
         self.horizontalLayout_3.addStretch()
 
@@ -78,10 +78,10 @@ class GuiMainWindow(object):
         self.main_layout.addLayout(self.horizontalLayout_3)
 
         #  Fourth row: List of course
-        self.kurs_listWidget = QtWidgets.QListWidget(parent=self.central_widget)
-        self.kurs_listWidget.setObjectName("kurs_listWidget")
-        self.kurs_listWidget.setStyleSheet("QListWidget { background: transparent; border: none; }")
-        self.main_layout.addWidget(self.kurs_listWidget)
+        self.course_listWidget = QtWidgets.QListWidget(parent=self.central_widget)
+        self.course_listWidget.setObjectName("course_listWidget")
+        self.course_listWidget.setStyleSheet("QListWidget { background: transparent; border: none; }")
+        self.main_layout.addWidget(self.course_listWidget)
 
         # Pass the central widget to the QMainWindow
         Dialog.setCentralWidget(self.central_widget)
@@ -94,5 +94,5 @@ class GuiMainWindow(object):
         _translate = QtCore.QCoreApplication.translate
         self.aktiv_label.setText(_translate("Dialog", "Aktueller Kurs"))
         self.calender_label.setText(_translate("Dialog", "Kalender"))
-        self.kurs_label.setText(_translate("Dialog", "Kurse"))
+        self.course_label.setText(_translate("Dialog", "Kurse"))
         self.add_button.setText(_translate("Dialog", "Add"))
