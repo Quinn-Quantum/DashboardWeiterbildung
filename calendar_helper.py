@@ -2,7 +2,16 @@ from PyQt6.QtCore import QDate
 from PyQt6.QtGui import QColor, QTextCharFormat
 from PyQt6.QtWidgets import QCalendarWidget
 
+def clear_calendar_formats(calendar: QCalendarWidget, start_date: QDate, end_date: QDate) -> None:
+    """Removes date formatting within the specified period"""
+    if not start_date.isValid() or not end_date.isValid():
+        return
 
+    empty_fmt = QTextCharFormat()
+    current = start_date
+    while current <= end_date:
+        calendar.setDateTextFormat(current, empty_fmt)
+        current = current.addDays(1)
 
 def highlight_period(
         calendar: QCalendarWidget,
@@ -35,7 +44,8 @@ def mark_active_course_duration(
         duration_days: int = 28,
 ) -> None:
     """Mark current price in the calendar"""
-    # Erst Gesamtzeitraum neu setzen, damit alte Kursmarkierungen sauber verschwinden
+    if not study_start.isValid() or not course_start.isValid():
+        return
     mark_study_period(calendar, study_start, total_months)
     course_end = course_start.addDays(duration_days)
     highlight_period(

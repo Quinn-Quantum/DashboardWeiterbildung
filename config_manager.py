@@ -24,7 +24,7 @@ class ConfigManager:
                 if len(lines) >= 2:
                     start_str = lines[0].strip()
                     months = int(lines[1].strip())
-                    if QDate.fromString(start_str, "yyyy-MM-dd").isValid():
+                    if QDate.fromString(start_str, "yyyy-MM-dd").isValid() and months > 0:
                         return start_str, months
         except Exception as e:
             print(f"Error reading {self.filepath}: {e}")
@@ -33,22 +33,12 @@ class ConfigManager:
 
     def load_or_default(self) -> tuple[QDate, int]:
         """returns default values"""
-        default_date = QDate.currentDate()
-        default_months = 6
+        start_str, months = self.load_raw()
+        start_date = QDate.fromString(start_str, "yyyy-MM-dd")
 
-        if not os.path.exists(self.filepath):
-            self.write(default_date.toString("yyyy-MM-dd"), default_months)
-            return default_date, default_months
+        if not os.path.exists(self.filepath) or not start_date.isValid():
+            default_date = QDate.currentDate()
+            self.write(default_date.toString("yyyy-MM-dd"), self.default_months)
+            return default_date, self.default_months
 
-        try:
-            with open(self.filepath, "r", encoding="utf-8") as f:
-                lines = f.read().splitlines()
-                start_date = QDate.fromString(lines[0], "yyyy-MM-dd")
-                months = int(lines[1])
-                if not start_date.isValid():
-                    raise ValueError("Ungültiges Startdatum")
-                return start_date, months
-        except Exception as e:
-            print(f"Fehler bei {self.filepath}: {e} – nutze Standardwerte.")
-            self.write(default_date.toString("yyyy-MM-dd"), default_months)
-            return default_date, default_months
+        return start_date, months

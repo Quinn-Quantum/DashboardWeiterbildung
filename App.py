@@ -83,6 +83,7 @@ class MainWindow(QMainWindow):
             self.gui.kurs_listWidget,
             courses,
             self.delete_course_action,
+            self.edit_course_action,
         )
         self.active_course_id = restored_id
 
@@ -140,32 +141,38 @@ class MainWindow(QMainWindow):
         print(f"Current Course loaded/activated: ID {active_tile.course_id} ({active_tile.name}) ab {start_date.toString('yyyy-MM-dd')}")
         return active_tile
 
-    def delete_course_action(self, course_id):
+    def delete_course_action(self, course_id: int):
         """Deletes a course from the database and refreshes the UI."""
         self.dashboard.delete_course(course_id)
         self.refresh_course_tiles()
         print(f"Course ID {course_id} was deleted immediately.")
 
     def edit_course_action(self, course_id:int ):
+        if getattr(self, "is_dialog_open", False):
+            return
         row = self.dashboard.get_course_by_id(course_id)
         if row is None:
             return
-        db_course_id, course_name, test_type_of_examination, test_is_mandatory = self.dashboard.get_cours_by_id(course_id)
-        dialog = PoPUpAddCourse(
-            parent=self,
-            course_id=db_course_id,
-            course_name=course_name,
-            test_type_of_examination=test_type_of_examination,
-            test_is_mandatory=test_is_mandatory,
-        )
-        if dialog.exec() == QDialog.DialogCode.Accepted:
-            name_course = dialog.course_name.text().strip()
-            selected_test = dialog.get_selected_test_type()
-            test_value = selected_test.value if selected_test is not None else None
-            is_mandatory = dialog.radio_one.isChecked()
+        db_course_id, course_name, test_type_of_examination, test_is_mandatory = row
+        try:
+            self.is_dialog_open = True
+            dialog = PoPUpAddCourse(
+                parent=self,
+                course_id=db_course_id,
+                course_name=course_name,
+                test_type_of_examination=test_type_of_examination,
+                test_is_mandatory=test_is_mandatory,
+            )
+            if dialog.exec() == QDialog.DialogCode.Accepted:
+                name_course = dialog.course_name.text().strip()
+                selected_test = dialog.get_selected_test_type()
+                test_value = selected_test.value if selected_test is not None else None
+                is_mandatory = dialog.radio_one.isChecked()
 
-            self.dashboard.update_in_db(db_course_id, name_course, test_value, is_mandatory)
-            self.refresh_course_tiles()
+                self.dashboard.update_in_db(db_course_id, name_course, test_value, is_mandatory)
+                self.refresh_course_tiles()
+        finally:
+            self.is_dialog_open = False
 
     def open_popup_complete_cours(self, clicked_tile):
         """Opens the course-completion dialog and updates the database if confirmed."""

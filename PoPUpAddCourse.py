@@ -24,7 +24,7 @@ class PoPUpAddCourse(QDialog):
         self.resize(300, 350)
 
         # Layout for Pop-up
-        layout = QVBoxLayout()
+        layout = QVBoxLayout(self)
         self.course_name = QLineEdit(course_name or "", self)
         layout.addWidget(self.course_name)
 
@@ -40,6 +40,12 @@ class PoPUpAddCourse(QDialog):
         layout.addWidget(self.radio_one)
         layout.addWidget(self.radio_two)
 
+        if self.is_edit_mode:
+            self._set_selected_test_type(test_type_of_examination)
+            self._set_mandatory_radio(bool(test_is_mandatory))
+        else:
+            self.radio_one.setChecked(True)
+
         self.btn_ok = ok_button(self, on_click=self.accept)
         layout.addWidget(self.btn_ok)
 
@@ -52,7 +58,6 @@ class PoPUpAddCourse(QDialog):
         if value is None:
             return
         if not isinstance(value, TestTypes):
-            # Falls in der DB der Enum-Wert (z. B. "Klausur") oder der Name (z. B. "EXAM") steht:
             try:
                 value = TestTypes(value)
             except ValueError:

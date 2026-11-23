@@ -66,6 +66,7 @@ def populate_course_list(
     list_widget: QListWidget,
     courses: list,
     on_delete_callback,
+    on_edit_callback=None,
 ) -> tuple[CourseTile | None, int | None, QDate | None]:
     """Populates the course list widget and returns info about any active course."""
     list_widget.clear()
@@ -78,8 +79,10 @@ def populate_course_list(
         c_id, name, time, test_name, is_mandatory, is_active, start_date, is_complete = course_data
         tile = CourseTile(c_id, name, test_name, is_mandatory, is_complete)
 
-        # Connect delete signal emitted by the tile
+        # Connect delete and edit signals emitted by the tile
         tile.delete_requested.connect(on_delete_callback)
+        if on_edit_callback is not None:
+            tile.edit_requested.connect(on_edit_callback)
 
         item = QListWidgetItem(list_widget)
         item.setSizeHint(tile.sizeHint())
